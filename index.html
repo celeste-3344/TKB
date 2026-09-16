@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi" data-theme="light">
+<html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -15,8 +15,7 @@
 <style>
 /* =====================================================================
    1. DESIGN TOKENS
-   Toàn bộ màu sắc đi qua biến CSS -> đổi giao diện Sáng/Tối chỉ bằng
-   một thuộc tính [data-theme] trên <html>, không cần !important ở đâu cả.
+   Toàn bộ màu sắc đi qua biến CSS.
    ===================================================================== */
 :root{
   /* Bảng màu Công chúa Hoàng gia — bắt buộc đúng 4 mã màu chủ đạo */
@@ -57,33 +56,6 @@
   --ease:cubic-bezier(.22,.61,.36,1);
   --t-fast:.16s var(--ease);
   --t-mid:.28s var(--ease);
-}
-
-/* Giao diện Tối: chỉ ghi đè lớp ngữ nghĩa, bảng màu lõi giữ nguyên */
-html[data-theme="dark"]{
-  --page-bg:#17110F;
-  --dot-color:rgba(255,214,196,.10);
-  --surface:#221A17;
-  --surface-2:#2C221E;
-  --surface-glass:rgba(34,26,23,.76);
-  --border:rgba(255,222,205,.12);
-  --border-strong:rgba(255,222,205,.24);
-  --text:#F2E6DB;
-  --text-muted:#B49C8B;
-  --brand:#E8899B;
-  --brand-ink:#F6D9DF;
-  --on-brand:#FFF6F1;
-  --rose-500:#C9576C;
-  --jade-600:#5FBF95;
-  --amber-600:#E0A340;
-  --shadow-sm:0 1px 2px rgba(0,0,0,.4);
-  --shadow-md:0 2px 6px rgba(0,0,0,.35), 0 14px 30px rgba(0,0,0,.35);
-  --shadow-lg:0 24px 60px rgba(0,0,0,.6);
-}
-html[data-theme="dark"] body{
-  background-image:
-    radial-gradient(circle, var(--dot-color) 1.5px, transparent 1.6px),
-    linear-gradient(160deg, #1B1210 0%, #17110F 100%);
 }
 
 /* =====================================================================
@@ -353,14 +325,14 @@ button{ font:inherit; color:inherit; }
   50%{ opacity:.8; transform:scale(1.2); }
 }
 .weather-card{ position:relative; }
-/* Khi có active-class: gỡ nền/khoảng đệm mặc định của .card, để lộ đúng
-   khe hở 2-3px cho viền xoay — .card-inner bên trong mới là "mặt kính" thật. */
+/* Khi có active-class: gỡ nền/khoảng đệm mặc định của .card — .card-inner
+   bên trong mới là "mặt kính" thật (còn dải sáng lướt qua). */
 .weather-card.active-class{
-  background:transparent; border:0; box-shadow:none; padding:3px;
+  background:transparent; border:0; box-shadow:none; padding:0;
 }
 .weather-card .card-inner{
   padding:var(--pad-card);
-  border-radius:calc(var(--r-lg) - 3px);
+  border-radius:var(--r-lg);
   box-shadow:var(--shadow-sm);
 }
 .weather-card .card-inner > *{ position:relative; z-index:1; }
@@ -471,36 +443,11 @@ button{ font:inherit; color:inherit; }
 .lesson[data-state="canceled"] .lesson__facts{ text-decoration:line-through; }
 
 /* =====================================================================
-   8B. HIỆU ỨNG "ĐANG DIỄN RA" — viền xoay lấp lánh + dải sáng lướt qua
+   8B. HIỆU ỨNG "ĐANG DIỄN RA" — nền nổi bật + nhãn dán
    ===================================================================== */
 .active-class{
   position:relative;
   overflow:hidden;
-  padding:3px;
-}
-.active-class::before{
-  content:"";
-  position:absolute;
-  top:50%; left:50%;
-  width:150%; height:150%;
-  /* Chỉ tô sáng đúng 1 cung ~100° (240°→280° có đỉnh sáng ở 260°), nửa vòng
-     còn lại (0°→180°) để transparent hẳn — nhờ vậy khi xoay chỉ thấy ĐÚNG
-     1 vệt sáng lướt qua viền, không bị cảm giác có 2 vệt (đỏ + trắng) cùng
-     lúc như kiểu gradient phủ kín cả vòng tròn trước đây. */
-  background:conic-gradient(
-    transparent 0deg,
-    transparent 180deg,
-    var(--rose-500) 240deg,
-    var(--cream-50) 260deg,
-    var(--rose-500) 280deg,
-    transparent 360deg
-  );
-  animation:active-border-spin 3.5s linear infinite;
-  z-index:0;
-}
-@keyframes active-border-spin{
-  from{ transform:translate(-50%,-50%) rotate(0deg); }
-  to{ transform:translate(-50%,-50%) rotate(360deg); }
 }
 .active-class .card-inner{
   position:relative;
@@ -509,22 +456,9 @@ button{ font:inherit; color:inherit; }
   border-left-color:var(--wine-700);
   overflow:hidden;
 }
-.active-class .card-inner::after{
-  content:"";
-  position:absolute;
-  top:0; left:-150%;
-  width:55%; height:100%;
-  background:linear-gradient(100deg, transparent, rgba(255,255,255,.75), transparent);
-  transform:skewX(-25deg);
-  animation:active-shimmer-sweep 3s linear infinite;
-  z-index:2; pointer-events:none;
-}
-@keyframes active-shimmer-sweep{
-  from{ left:-150%; }
-  to{ left:150%; }
-}
 .badge--active{
-  position:absolute; top:10px; right:10px; z-index:3;
+  grid-column:1 / -1;
+  justify-self:start;
   display:inline-flex; align-items:center; gap:4px;
   font-family:'Quicksand',sans-serif; font-size:10.5px; font-weight:700; letter-spacing:.01em;
   padding:3px 10px; border-radius:var(--r-pill);
@@ -590,9 +524,28 @@ button{ font:inherit; color:inherit; }
   background:var(--surface-2); overflow:hidden;
 }
 .lesson__bar > i{
+  position:relative;
   display:block; height:100%; width:0%;
   background:var(--jade-600); border-radius:inherit;
+  overflow:hidden;
   transition:width 1s linear;
+}
+/* Dải sáng lướt ngang — chuyển từ ô/thanh "đang diễn ra" sang thẳng thanh
+   tiến trình: chỉ chạy khi môn đang học (.lesson có active-class), lướt
+   liên tục qua phần đã tô màu của thanh để nhấn nhịp "đang đếm giờ". */
+.active-class .lesson__bar > i::after{
+  content:"";
+  position:absolute;
+  top:0; left:-150%;
+  width:55%; height:100%;
+  background:linear-gradient(100deg, transparent, rgba(255,255,255,.85), transparent);
+  transform:skewX(-25deg);
+  animation:active-shimmer-sweep 1.8s linear infinite;
+  pointer-events:none;
+}
+@keyframes active-shimmer-sweep{
+  from{ left:-150%; }
+  to{ left:150%; }
 }
 
 .empty{
@@ -1015,11 +968,6 @@ footer{
         <option value="4">Nhóm 4</option>
       </select>
     </div>
-
-    <button type="button" class="icon-btn" id="themeBtn" aria-pressed="false" title="Đổi giao diện sáng / tối">
-      <i class="fa-solid fa-moon" id="themeIcon" aria-hidden="true"></i>
-      <span class="visually-hidden">Đổi giao diện sáng tối</span>
-    </button>
 
     <button type="button" class="icon-btn" id="editBtn" title="Chỉnh sửa thông tin môn học">
       <span aria-hidden="true">👑</span>
@@ -1691,30 +1639,14 @@ const countPeriods = (lessons) =>
    vẫn được lưu, vì đó là dữ liệu chứ không phải trạng thái giao diện.
    ===================================================================== */
 
-const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
 const state = {
   group: 3,
   dayOffset: 0,                                  // 0 = hôm nay, 1 = ngày mai
   weatherOffset: 0,
-  theme: prefersDark ? 'dark' : 'light',
   weather: null,
   weatherStale: false,
   lastRenderedDate: null,                        // để phát hiện qua nửa đêm
   focusKey: '',                                  // tránh vẽ lại panel "Bây giờ" mỗi giây
-};
-
-/* =====================================================================
-   PHẦN 4 — GIAO DIỆN SÁNG / TỐI
-   ===================================================================== */
-
-const applyTheme = (theme) => {
-  state.theme = theme;
-  document.documentElement.dataset.theme = theme;
-  $('themeIcon').className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-  $('themeBtn').setAttribute('aria-pressed', String(theme === 'dark'));
-  document.querySelector('meta[name="theme-color"]')
-    .setAttribute('content', theme === 'dark' ? '#17110F' : '#7A1028');
 };
 
 /* =====================================================================
@@ -1932,7 +1864,7 @@ const updateTimelineLive = (now) => {
         activeBadge = document.createElement('span');
         activeBadge.className = 'badge--active';
         activeBadge.textContent = '✨ Đang diễn ra';
-        cardInner.appendChild(activeBadge);
+        cardInner.prepend(activeBadge);
       } else if (!isActive && activeBadge) {
         activeBadge.remove();
       }
@@ -2983,11 +2915,6 @@ document.addEventListener('keydown', ({ key }) => {
   }
 });
 
-// --- Giao diện sáng / tối ---
-$('themeBtn').addEventListener('click', () => {
-  applyTheme(state.theme === 'dark' ? 'light' : 'dark');
-});
-
 // --- Nút "Về hôm nay" ---
 $('jumpTodayBtn').addEventListener('click', scrollWeekToToday);
 
@@ -3063,7 +2990,6 @@ const startApp = async () => {
 
   applyAllEdits();                             // áp lại thông tin môn học đã chỉnh sửa (nếu có)
   rebuildCustomTail();                         // nối các môn học người dùng tự thêm (nếu có)
-  applyTheme(state.theme);
   renderAll();
   tick();
   setInterval(tick, 1000);                     // nhịp tim duy nhất của trang
