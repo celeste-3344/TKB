@@ -1,0 +1,70 @@
+name: Build & Deploy TKB
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      # The Firebase apiKey below is NOT a secret capable of granting write
+      # access by itself (see README/SECURITY.md) — real access control is
+      # the Realtime Database rules + anonymous auth already in the app.
+      # We still keep it out of the committed source and inject it here so
+      # GitHub's secret-scanner doesn't flag the repo and the key isn't
+      # sitting in git history.
+      - name: Inject Firebase config
+        run: |
+          sed -i "s/__FIREBASE_API_KEY__/${FIREBASE_API_KEY}/g" src/index.html
+        env:
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+
+      - name: Install minifiers
+        run: npm install --no-save html-minifier-terser@7
+
+      - name: Minify to dist/
+        run: |
+          mkdir -p dist
+          npx html-minifier-terser \
+            --collapse-whitespace \
+            --remove-comments \
+            --minify-css true \
+            --minify-js true \
+            --input-dir src \
+            --output-dir dist \
+            --file-ext html
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
