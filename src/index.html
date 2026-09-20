@@ -151,6 +151,14 @@ button{ font:inherit; color:inherit; }
 .icon-btn:active{ transform:translateY(0) scale(.95); }
 .icon-btn[aria-pressed="true"]{ background:var(--rose-500); color:var(--on-brand); border-color:transparent; }
 
+/* Canh giữa emoji trong các nút/ô tròn (khắc phục lệch tâm trên di động) */
+.icon-btn span[aria-hidden],
+.sheet__edit span[aria-hidden],
+.edit-lock__icon span[aria-hidden],
+.edit-row__btn span[aria-hidden]{
+  display:inline-block; line-height:1;
+}
+
 /* Bộ chọn nhóm thực hành */
 .group-field{
   display:flex; align-items:center; gap:9px;
